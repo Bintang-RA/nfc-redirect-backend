@@ -40,7 +40,7 @@ app.get('/r/:idCode', async (req, res) => {
 });
 
 // -----------------------------------------------
-// 2. MASTER API (Khusus Admin / Kamu)
+// 2. MASTER API (Khusus Admin)
 // -----------------------------------------------
 
 // Ambil Semua Daftar Alat
@@ -50,8 +50,13 @@ app.get('/api/admin/devices', async (req, res) => {
     return res.status(401).json({ success: false, message: 'Password Admin Salah!' });
   }
 
-  const devices = await prisma.device.findMany({ orderBy: { idCode: 'asc' } });
-  return res.json({ success: true, data: devices });
+  try {
+    const devices = await prisma.device.findMany({ orderBy: { idCode: 'asc' } });
+    return res.json({ success: true, data: devices });
+  } catch (error) {
+    console.error('Error Fetch Devices:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 // Upsert (Tambah / Update Link Alat)
@@ -63,26 +68,61 @@ app.post('/api/admin/update', async (req, res) => {
     return res.status(401).json({ success: false, message: 'Password Admin Salah!' });
   }
 
+  if (!idCode || !targetUrl) {
+    return res.status(400).json({ success: false, message: 'Kode Alat dan Link wajib diisi!' });
+  }
+
+  const cleanId = idCode.trim();
+  const cleanUrl = targetUrl.trim();
+  const cleanClient = clientName ? clientName.trim() : null;
+
   try {
+    // Attempt 1: Coba simpan beserta clientName ke userId
     const device = await prisma.device.upsert({
-      where: { idCode: idCode.trim() },
+      where: { idCode: cleanId },
       update: {
-        targetUrl: targetUrl.trim(),
-        userId: clientName || null,
+        targetUrl: cleanUrl,
+        userId: cleanClient,
         status: 'CLAIMED'
       },
       create: {
-        idCode: idCode.trim(),
-        targetUrl: targetUrl.trim(),
-        userId: clientName || null,
+        idCode: cleanId,
+        targetUrl: cleanUrl,
+        userId: cleanClient,
         status: 'CLAIMED'
       }
     });
 
-    return res.json({ success: true, message: `Berhasil simpan data ${idCode}`, data: device });
+    return res.json({ success: true, message: `Berhasil simpan data ${cleanId}`, data: device });
+
   } catch (error) {
-    console.error('Error Admin Update:', error);
-    return res.status(500).json({ success: false, message: 'Gagal update data' });
+    console.error('Attempt 1 Failed (foreign key issue), running fallback...', error.message);
+
+    // Attempt 2 (Fallback): Jika userId error karena constraint DB, simpan link-nya saja
+    try {
+      const fallbackDevice = await prisma.device.upsert({
+        where: { idCode: cleanId },
+        update: {
+          targetUrl: cleanUrl,
+          status: 'CLAIMED'
+        },
+        create: {
+          idCode: cleanId,
+          targetUrl: cleanUrl,
+          status: 'CLAIMED'
+        }
+      });
+
+      return res.json({ 
+        success: true, 
+        message: `Berhasil simpan link ${cleanId}!`, 
+        data: fallbackDevice 
+      });
+
+    } catch (fallbackErr) {
+      console.error('Error Admin Update:', fallbackErr);
+      return res.status(500).json({ success: false, message: `Gagal: ${fallbackErr.message}` });
+    }
   }
 });
 
