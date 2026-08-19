@@ -5,98 +5,88 @@ const path = require('path');
 const prisma = new PrismaClient();
 const app = express();
 
-// Middleware Parsing & Static Files
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// ===============================================
-// 1. DASHBOARD UTAMA (Diakses Pemilik Kafe)
-// ===============================================
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// ===============================================
-// 2. ENDPOINT REDIRECT (Diakses saat Scan QR / Tap NFC)
-// ===============================================
+// -----------------------------------------------
+// 1. DASHBOARD REDIRECT PUBLIC (Scan QR / NFC)
+// -----------------------------------------------
 app.get('/r/:idCode', async (req, res) => {
   const { idCode } = req.params;
 
   try {
     const device = await prisma.device.findUnique({ where: { idCode } });
 
-    // Jika ID alat tidak ada di database
     if (!device) {
-      return res.status(404).send(`
-        <div style="font-family:sans-serif; text-align:center; padding:50px;">
-          <h1 style="color:#e53e3e;">Alat Tidak Terdaftar!</h1>
-          <p>Kode alat ID "${idCode}" belum dimasukkan ke database sistem.</p>
-        </div>
-      `);
+      return res.status(404).send('<h1 style="text-align:center;margin-top:50px;">Alat Tidak Terdaftar!</h1>');
     }
 
-    // Jika alat belum diaktivasi atau link Google Maps belum diisi
-    if (device.status === 'UNCLAIMED' || !device.targetUrl) {
-      return res.send(`
-        <div style="font-family:sans-serif; text-align:center; padding:50px;">
-          <h1>Alat ${idCode} Belum Diaktivasi</h1>
-          <p>Silakan masukkan link Google Maps toko kamu melalui halaman Dashboard.</p>
-        </div>
-      `);
+    if (!device.targetUrl) {
+      return res.send(`<h1 style="text-align:center;margin-top:50px;">Alat ${idCode} Belum Diaktivasi</h1>`);
     }
 
-    // Tambah hit counter (+1)
+    // Incremental Counter Scan
     await prisma.device.update({
       where: { idCode },
       data: { scanCount: { increment: 1 } }
     });
 
-    // Redirect HTTP 302 ke Google Maps
     return res.redirect(302, device.targetUrl);
-
   } catch (error) {
     console.error('Error Redirect:', error);
-    return res.status(500).send('Terjadi kesalahan pada server.');
+    return res.status(500).send('Server Error');
   }
 });
 
-// ===============================================
-// 3. API UPDATE LINK (Digunakan oleh Form Dashboard)
-// ===============================================
-app.post('/api/device/update', async (req, res) => {
-  const { idCode, targetUrl, userId } = req.body;
+// -----------------------------------------------
+// 2. MASTER API (Khusus Admin / Kamu)
+// -----------------------------------------------
 
-  if (!idCode || !targetUrl) {
-    return res.status(400).json({ success: false, message: 'Kode Alat dan Link Google Maps wajib diisi!' });
+// Ambil Semua Daftar Alat
+app.get('/api/admin/devices', async (req, res) => {
+  const apiKey = req.headers['x-admin-key'];
+  if (apiKey !== process.env.ADMIN_KEY) {
+    return res.status(401).json({ success: false, message: 'Password Admin Salah!' });
+  }
+
+  const devices = await prisma.device.findMany({ orderBy: { idCode: 'asc' } });
+  return res.json({ success: true, data: devices });
+});
+
+// Upsert (Tambah / Update Link Alat)
+app.post('/api/admin/update', async (req, res) => {
+  const apiKey = req.headers['x-admin-key'];
+  const { idCode, targetUrl, clientName } = req.body;
+
+  if (apiKey !== process.env.ADMIN_KEY) {
+    return res.status(401).json({ success: false, message: 'Password Admin Salah!' });
   }
 
   try {
-    const updatedDevice = await prisma.device.update({
+    const device = await prisma.device.upsert({
       where: { idCode: idCode.trim() },
-      data: {
+      update: {
         targetUrl: targetUrl.trim(),
-        userId: userId || null,
+        userId: clientName || null,
+        status: 'CLAIMED'
+      },
+      create: {
+        idCode: idCode.trim(),
+        targetUrl: targetUrl.trim(),
+        userId: clientName || null,
         status: 'CLAIMED'
       }
     });
 
-    return res.json({
-      success: true,
-      message: `Berhasil mengupdate link untuk alat ${idCode}`,
-      data: updatedDevice
-    });
+    return res.json({ success: true, message: `Berhasil simpan data ${idCode}`, data: device });
   } catch (error) {
-    console.error('Error Update:', error);
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Gagal mengupdate data. Pastikan Kode Alat sudah terdaftar di Supabase!' 
-    });
+    console.error('Error Admin Update:', error);
+    return res.status(500).json({ success: false, message: 'Gagal update data' });
   }
 });
 
-// Port dinamis untuk deployment (Render/Railway) atau local
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
+  console.log(`🚀 Server berjalan di port ${PORT}`);
 });

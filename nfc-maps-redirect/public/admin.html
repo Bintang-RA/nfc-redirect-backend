@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Master Admin Dashboard</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; background: #f4f6f8; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    input, button { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>🔑 Login Admin</h2>
+    <input type="password" id="adminKey" placeholder="Masukkan Password Admin">
+    <button onclick="loadDevices()">Muat Data Alat</button>
+  </div>
+
+  <div class="card">
+    <h2>➕ Tambah / Edit Link Alat</h2>
+    <input type="text" id="idCode" placeholder="Kode Alat (contoh: A001)">
+    <input type="text" id="clientName" placeholder="Nama Klien / Kafe (contoh: Kopi Kenangan)">
+    <input type="url" id="targetUrl" placeholder="Link Google Maps Baru">
+    <button onclick="saveDevice()">Simpan Link</button>
+  </div>
+
+  <div class="card">
+    <h2>📊 Daftar Seluruh Alat</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Alat</th>
+          <th>Klien</th>
+          <th>Total Scan</th>
+          <th>Link Google Maps</th>
+        </tr>
+      </thead>
+      <tbody id="deviceTable">
+        <tr><td colspan="4">Masukkan password admin dulu.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadDevices() {
+      const key = document.getElementById('adminKey').value;
+      const res = await fetch('/api/admin/devices', { headers: { 'x-admin-key': key } });
+      const json = await res.json();
+
+      if (!json.success) return alert(json.message);
+
+      const tbody = document.getElementById('deviceTable');
+      tbody.innerHTML = json.data.map(d => `
+        <tr>
+          <td><b>${d.idCode}</b></td>
+          <td>${d.userId || '-'}</td>
+          <td><b>${d.scanCount}</b>x</td>
+          <td><a href="${d.targetUrl}" target="_blank">Cek Link</a></td>
+        </tr>
+      `).join('');
+    }
+
+    async function saveDevice() {
+      const key = document.getElementById('adminKey').value;
+      const idCode = document.getElementById('idCode').value;
+      const clientName = document.getElementById('clientName').value;
+      const targetUrl = document.getElementById('targetUrl').value;
+
+      const res = await fetch('/api/admin/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+        body: JSON.stringify({ idCode, clientName, targetUrl })
+      });
+
+      const json = await res.json();
+      alert(json.message);
+      if (json.success) loadDevices();
+    }
+  </script>
+</body>
+</html>
