@@ -3,220 +3,307 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Master Admin Dashboard</title>
+  <title>NFC Master Control</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
+      --bg-app: #eef0f4;
+      --bg-card: #ffffff;
+      --bg-input: #f4f5f8;
       --text-main: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --danger: #ef4444;
-      --danger-hover: #dc2626;
-      --success-bg: #dcfce7;
-      --success-text: #166534;
+      --text-muted: #8c94a0;
+      --accent-dark: #111827;
+      --accent-hover: #1f2937;
+      --border-color: #e5e7eb;
+      --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0,0,0,0.02);
+      --radius-lg: 28px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: var(--bg);
+      background-color: var(--bg-app);
       color: var(--text-main);
-      padding: 16px;
       min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* MAIN APP WINDOW CONTAINER */
+    .app-window {
+      width: 100%;
+      max-width: 840px;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255,255,255,0.8);
+      transition: all 0.3s ease;
+    }
+
+    /* ----------------------------------
+       1. LOGIN SECTION (MINIMALIS GAGAH)
+    ---------------------------------- */
+    .login-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    /* HEADER */
-    .brand-header {
+      justify-content: center;
+      padding: 30px 10px;
       text-align: center;
-      margin-bottom: 24px;
-      padding-top: 12px;
     }
-    .brand-header h1 {
+
+    .login-badge {
+      width: 60px;
+      height: 60px;
+      background: var(--accent-dark);
+      color: #ffffff;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 24px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text-main);
-    }
-    .brand-header p {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-top: 4px;
+      margin-bottom: 24px;
+      box-shadow: 0 12px 24px rgba(17, 24, 39, 0.2);
     }
 
-    /* CARD STYLING */
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-      margin-bottom: 20px;
-      transition: all 0.2s ease;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .card-title {
-      font-size: 16px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* FORMS & INPUTS */
-    .form-group {
-      margin-bottom: 14px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-muted);
+    .login-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--accent-dark);
       margin-bottom: 6px;
     }
 
-    input[type="text"],
-    input[type="password"],
-    input[type="url"] {
+    .login-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      font-weight: 500;
+    }
+
+    .login-box {
       width: 100%;
-      padding: 12px 14px;
-      font-size: 15px; /* Mencegah auto-zoom di iOS Safari */
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background-color: #fff;
+      max-width: 360px;
+    }
+
+    /* FORMS & INPUTS */
+    .input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .custom-input {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 15px; /* Anti-zoom iOS Safari */
+      font-weight: 500;
+      background-color: var(--bg-input);
+      border: 1.5px solid transparent;
+      border-radius: var(--radius-md);
       color: var(--text-main);
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      -webkit-appearance: none;
+      transition: all 0.2s ease;
     }
 
-    input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    .custom-input:focus {
+      background-color: #ffffff;
+      border-color: var(--accent-dark);
+      box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
     }
 
-    /* BUTTONS */
-    .btn {
+    .btn-dark {
       width: 100%;
-      padding: 12px 18px;
-      font-size: 14px;
-      font-weight: 600;
-      border-radius: 10px;
+      padding: 15px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      background-color: var(--accent-dark);
+      color: #ffffff;
       border: none;
+      border-radius: var(--radius-md);
       cursor: pointer;
-      display: inline-flex;
+      transition: all 0.2s ease;
+      box-shadow: 0 10px 20px rgba(17, 24, 39, 0.15);
+    }
+
+    .btn-dark:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-dark:active {
+      transform: translateY(0);
+    }
+
+    /* ----------------------------------
+       2. DASHBOARD SECTION
+    ---------------------------------- */
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .dash-title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dash-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--accent-dark);
+      color: #fff;
+      border-radius: 14px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      transition: background-color 0.2s, transform 0.1s;
-    }
-    .btn:active {
-      transform: scale(0.98);
-    }
-    .btn-primary {
-      background-color: var(--primary);
-      color: #ffffff;
-    }
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
-    }
-    .btn-danger {
-      background-color: #fee2e2;
-      color: var(--danger);
-      width: auto;
-      padding: 8px 14px;
-      font-size: 12px;
-    }
-    .btn-danger:hover {
-      background-color: #fca5a5;
+      font-size: 18px;
     }
 
-    /* RESPONSIVE TABLE */
-    .table-wrapper {
+    .dash-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .dash-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .btn-logout {
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #fef2f2;
+      color: #ef4444;
+      border: 1px solid #fee2e2;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: #fee2e2;
+    }
+
+    .section-card {
+      background: #fafbfc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: var(--accent-dark);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-full {
+      grid-column: span 2;
+    }
+
+    /* RESPONSIVE TABLE STYLING */
+    .table-responsive {
       width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      border-radius: 10px;
-      border: 1px solid var(--border);
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 14px;
+      border-collapse: separate;
+      border-spacing: 0 8px;
       white-space: nowrap;
     }
 
     th {
-      background-color: #f1f5f9;
-      color: var(--text-muted);
-      font-weight: 600;
-      font-size: 12px;
+      font-size: 11px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      text-align: left;
     }
 
     td {
+      background: #ffffff;
       padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text-main);
+      font-size: 14px;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
     }
 
-    tr:last-child td {
-      border-bottom: none;
+    td:first-child {
+      border-left: 1px solid var(--border-color);
+      border-top-left-radius: var(--radius-sm);
+      border-bottom-left-radius: var(--radius-sm);
+      font-weight: 700;
+      color: var(--accent-dark);
     }
 
-    /* BADGES & LINKS */
-    .badge-scan {
-      background: var(--success-bg);
-      color: var(--success-text);
-      padding: 4px 8px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 12px;
+    td:last-child {
+      border-right: 1px solid var(--border-color);
+      border-top-right-radius: var(--radius-sm);
+      border-bottom-right-radius: var(--radius-sm);
     }
 
-    .link-url {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 500;
-      max-width: 200px;
+    .scan-badge {
       display: inline-block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      vertical-align: middle;
+      padding: 5px 12px;
+      background: var(--accent-dark);
+      color: #ffffff;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
     }
-    .link-url:hover {
+
+    .link-action {
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .link-action:hover {
       text-decoration: underline;
     }
 
@@ -224,81 +311,102 @@
       display: none !important;
     }
 
-    /* MEDIA QUERIES UNTUK HP KECIL (iPhone 8 / SE) */
-    @media (max-width: 480px) {
+    /* RESPONSIVE BREAKPOINTS (Android & iPhone 8+) */
+    @media (max-width: 640px) {
       body {
         padding: 12px;
       }
-      .card {
-        padding: 16px;
-        border-radius: 12px;
+      .app-window {
+        padding: 24px 18px;
+        border-radius: 20px;
       }
-      .brand-header h1 {
-        font-size: 20px;
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-full {
+        grid-column: span 1;
+      }
+      .dash-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .btn-logout {
+        align-self: flex-end;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <div class="app-window">
     
-    <!-- BRAND HEADER -->
-    <div class="brand-header">
-      <h1>NFC Redirect Master</h1>
-      <p>Kelola Tautan Google Maps Klien</p>
-    </div>
+    <!-- 1. LOGIN SCREEN -->
+    <div id="loginCard" class="login-wrapper">
+      <div class="login-badge">⚡</div>
+      <h1 class="login-title">Control Portal</h1>
+      <p class="login-subtitle">Masukkan password akses master admin</p>
 
-    <!-- FORM LOGIN -->
-    <div class="card" id="loginCard">
-      <div class="card-title" style="margin-bottom: 16px;">🔑 Authentikasi Admin</div>
-      <div class="form-group">
-        <label for="adminKey">Password Keamanan</label>
-        <input type="password" id="adminKey" placeholder="Masukkan password admin...">
+      <div class="login-box">
+        <div class="input-group">
+          <label class="input-label" for="adminKey">Security Key</label>
+          <input type="password" id="adminKey" class="custom-input" placeholder="••••••••••••">
+        </div>
+        <button class="btn-dark" onclick="loginAdmin()">Masuk Portal</button>
       </div>
-      <button class="btn btn-primary" onclick="loginAdmin()">Masuk Dashboard</button>
     </div>
 
-    <!-- DASHBOARD SECTION (TERSEMBUNYI SEBELUM LOGIN) -->
+    <!-- 2. DASHBOARD SCREEN (TERSEMBUNYI SEBELUM LOGIN) -->
     <div id="dashboardSection" class="hidden">
       
+      <!-- HEADER -->
+      <div class="dash-header">
+        <div class="dash-title-group">
+          <div class="dash-icon">⚡</div>
+          <div>
+            <h2 class="dash-title">Master Dashboard</h2>
+            <p class="dash-subtitle">NFC & QR Code Redirect Management</p>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="logoutAdmin()">Keluar</button>
+      </div>
+
       <!-- FORM INPUT / EDIT -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">⚡ Tambah / Update Alat</div>
-          <button class="btn btn-danger" onclick="logoutAdmin()">Keluar</button>
+      <div class="section-card">
+        <h3 class="section-title">➕ Set / Edit Link Alat</h3>
+        
+        <div class="form-grid">
+          <div class="input-group">
+            <label class="input-label">Kode Alat (ID)</label>
+            <input type="text" id="idCode" class="custom-input" placeholder="Misal: A001">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Nama Klien / Kafe</label>
+            <input type="text" id="clientName" class="custom-input" placeholder="Misal: Kopi Kenangan">
+          </div>
+
+          <div class="input-group form-full">
+            <label class="input-label">URL Google Maps Baru</label>
+            <input type="url" id="targetUrl" class="custom-input" placeholder="https://maps.app.goo.gl/...">
+          </div>
         </div>
 
-        <div class="form-group">
-          <label>Kode Alat (ID)</label>
-          <input type="text" id="idCode" placeholder="Contoh: A001">
-        </div>
-
-        <div class="form-group">
-          <label>Nama Klien / Kafe</label>
-          <input type="text" id="clientName" placeholder="Contoh: Kopi Kenangan">
-        </div>
-
-        <div class="form-group">
-          <label>URL Google Maps</label>
-          <input type="url" id="targetUrl" placeholder="https://maps.app.goo.gl/...">
-        </div>
-
-        <button class="btn btn-primary" onclick="saveDevice()">Simpan Perubahan</button>
+        <button class="btn-dark" style="margin-top: 10px;" onclick="saveDevice()">Simpan Link Alat</button>
       </div>
 
       <!-- TABEL DAFTAR ALAT -->
-      <div class="card">
-        <div class="card-title" style="margin-bottom: 16px;">📊 Daftar Alat Terdaftar</div>
+      <div>
+        <h3 class="section-title">📊 Daftar Seluruh Alat</h3>
         
-        <div class="table-wrapper">
+        <div class="table-responsive">
           <table>
             <thead>
               <tr>
                 <th>ID Alat</th>
-                <th>Klien</th>
+                <th>Nama Klien</th>
                 <th>Total Scan</th>
-                <th>Aksi / Link</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody id="deviceTable">
@@ -348,16 +456,16 @@
     function renderTable(data) {
       const tbody = document.getElementById('deviceTable');
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#64748b;">Belum ada data alat terdaftar.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#8c94a0;">Belum ada data alat.</td></tr>';
         return;
       }
 
       tbody.innerHTML = data.map(d => `
         <tr>
-          <td><strong style="color:var(--primary);">${d.idCode}</strong></td>
+          <td>${d.idCode}</td>
           <td>${d.userId || '-'}</td>
-          <td><span class="badge-scan">${d.scanCount || 0}x scan</span></td>
-          <td><a href="${d.targetUrl}" target="_blank" class="link-url">Buka Maps ↗</a></td>
+          <td><span class="scan-badge">${d.scanCount || 0}x scan</span></td>
+          <td><a href="${d.targetUrl}" target="_blank" class="link-action">Buka Maps ↗</a></td>
         </tr>
       `).join('');
     }
