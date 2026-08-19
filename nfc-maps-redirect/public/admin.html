@@ -41,7 +41,6 @@
       padding: 20px;
     }
 
-    /* MAIN APP WINDOW CONTAINER */
     .app-window {
       width: 100%;
       max-width: 840px;
@@ -53,9 +52,7 @@
       transition: all 0.3s ease;
     }
 
-    /* ----------------------------------
-       1. LOGIN SECTION (MINIMALIS GAGAH)
-    ---------------------------------- */
+    /* LOGIN */
     .login-wrapper {
       display: flex;
       flex-direction: column;
@@ -99,7 +96,7 @@
       max-width: 360px;
     }
 
-    /* FORMS & INPUTS */
+    /* INPUTS & BUTTONS */
     .input-group {
       margin-bottom: 18px;
       text-align: left;
@@ -118,7 +115,7 @@
     .custom-input {
       width: 100%;
       padding: 14px 18px;
-      font-size: 15px; /* Anti-zoom iOS Safari */
+      font-size: 15px;
       font-weight: 500;
       background-color: var(--bg-input);
       border: 1.5px solid transparent;
@@ -157,9 +154,7 @@
       transform: translateY(0);
     }
 
-    /* ----------------------------------
-       2. DASHBOARD SECTION
-    ---------------------------------- */
+    /* DASHBOARD */
     .dash-header {
       display: flex;
       justify-content: space-between;
@@ -240,7 +235,7 @@
       grid-column: span 2;
     }
 
-    /* RESPONSIVE TABLE STYLING */
+    /* TABLE */
     .table-responsive {
       width: 100%;
       overflow-x: auto;
@@ -311,7 +306,6 @@
       display: none !important;
     }
 
-    /* RESPONSIVE BREAKPOINTS (Android & iPhone 8+) */
     @media (max-width: 640px) {
       body {
         padding: 12px;
@@ -341,7 +335,7 @@
 
   <div class="app-window">
     
-    <!-- 1. LOGIN SCREEN -->
+    <!-- LOGIN SCREEN -->
     <div id="loginCard" class="login-wrapper">
       <div class="login-badge">⚡</div>
       <h1 class="login-title">Control Portal</h1>
@@ -356,10 +350,9 @@
       </div>
     </div>
 
-    <!-- 2. DASHBOARD SCREEN (TERSEMBUNYI SEBELUM LOGIN) -->
+    <!-- DASHBOARD SCREEN -->
     <div id="dashboardSection" class="hidden">
       
-      <!-- HEADER -->
       <div class="dash-header">
         <div class="dash-title-group">
           <div class="dash-icon">⚡</div>
@@ -371,7 +364,6 @@
         <button class="btn-logout" onclick="logoutAdmin()">Keluar</button>
       </div>
 
-      <!-- FORM INPUT / EDIT -->
       <div class="section-card">
         <h3 class="section-title">➕ Set / Edit Link Alat</h3>
         
@@ -395,7 +387,6 @@
         <button class="btn-dark" style="margin-top: 10px;" onclick="saveDevice()">Simpan Link Alat</button>
       </div>
 
-      <!-- TABEL DAFTAR ALAT -->
       <div>
         <h3 class="section-title">📊 Daftar Seluruh Alat</h3>
         
@@ -410,7 +401,7 @@
               </tr>
             </thead>
             <tbody id="deviceTable">
-              <!-- Content via JS -->
+              <!-- JS Content -->
             </tbody>
           </table>
         </div>
@@ -463,7 +454,7 @@
       tbody.innerHTML = data.map(d => `
         <tr>
           <td>${d.idCode}</td>
-          <td>${d.userId || '-'}</td>
+          <td>${d.clientName || d.userId || '-'}</td>
           <td><span class="scan-badge">${d.scanCount || 0}x scan</span></td>
           <td><a href="${d.targetUrl}" target="_blank" class="link-action">Buka Maps ↗</a></td>
         </tr>

@@ -19,6 +19,7 @@ model Device {
   targetUrl String?  // Link Google Maps Kafe
   status    String   @default("UNCLAIMED") // UNCLAIMED / CLAIMED
   scanCount Int      @default(0)
+  clientName  String?  // 👈 Tambahkan baris ini (teks biasa)
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
 }
