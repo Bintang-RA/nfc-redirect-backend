@@ -11,51 +11,90 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <div class="card">
+  <!-- FORM LOGIN -->
+  <div class="card" id="loginCard">
     <h2>🔑 Login Admin</h2>
     <input type="password" id="adminKey" placeholder="Masukkan Password Admin">
-    <button onclick="loadDevices()">Muat Data Alat</button>
+    <button onclick="loginAdmin()">Login</button>
   </div>
 
-  <div class="card">
-    <h2>➕ Tambah / Edit Link Alat</h2>
-    <input type="text" id="idCode" placeholder="Kode Alat (contoh: A001)">
-    <input type="text" id="clientName" placeholder="Nama Klien / Kafe (contoh: Kopi Kenangan)">
-    <input type="url" id="targetUrl" placeholder="Link Google Maps Baru">
-    <button onclick="saveDevice()">Simpan Link</button>
-  </div>
+  <!-- DASHBOARD ADMIN (HIDDEN SEBELUM LOGIN) -->
+  <div id="dashboardSection" class="hidden">
+    
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+        <h2 style="margin:0;">➕ Tambah / Edit Link Alat</h2>
+        <button onclick="logoutAdmin()" style="width: auto; background: #dc3545; padding: 6px 12px;">Logout</button>
+      </div>
+      <input type="text" id="idCode" placeholder="Kode Alat (contoh: A001)">
+      <input type="text" id="clientName" placeholder="Nama Klien / Kafe (contoh: Kopi Kenangan)">
+      <input type="url" id="targetUrl" placeholder="Link Google Maps Baru">
+      <button onclick="saveDevice()">Simpan Link</button>
+    </div>
 
-  <div class="card">
-    <h2>📊 Daftar Seluruh Alat</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>ID Alat</th>
-          <th>Klien</th>
-          <th>Total Scan</th>
-          <th>Link Google Maps</th>
-        </tr>
-      </thead>
-      <tbody id="deviceTable">
-        <tr><td colspan="4">Masukkan password admin dulu.</td></tr>
-      </tbody>
-    </table>
+    <div class="card">
+      <h2>📊 Daftar Seluruh Alat</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID Alat</th>
+            <th>Klien</th>
+            <th>Total Scan</th>
+            <th>Link Google Maps</th>
+          </tr>
+        </thead>
+        <tbody id="deviceTable"></tbody>
+      </table>
+    </div>
+
   </div>
 
   <script>
-    async function loadDevices() {
+    let savedAdminKey = '';
+
+    async function loginAdmin() {
       const key = document.getElementById('adminKey').value;
+      if (!key) return alert('Masukkan password admin!');
+
       const res = await fetch('/api/admin/devices', { headers: { 'x-admin-key': key } });
       const json = await res.json();
 
-      if (!json.success) return alert(json.message);
+      if (!json.success) {
+        return alert(json.message || 'Password Salah!');
+      }
 
+      // Password Benar -> Simpan key & Buka Dashboard
+      savedAdminKey = key;
+      document.getElementById('loginCard').classList.add('hidden');
+      document.getElementById('dashboardSection').classList.remove('hidden');
+      renderTable(json.data);
+    }
+
+    function logoutAdmin() {
+      savedAdminKey = '';
+      document.getElementById('adminKey').value = '';
+      document.getElementById('loginCard').classList.remove('hidden');
+      document.getElementById('dashboardSection').classList.add('hidden');
+    }
+
+    async function loadDevices() {
+      const res = await fetch('/api/admin/devices', { headers: { 'x-admin-key': savedAdminKey } });
+      const json = await res.json();
+      if (json.success) renderTable(json.data);
+    }
+
+    function renderTable(data) {
       const tbody = document.getElementById('deviceTable');
-      tbody.innerHTML = json.data.map(d => `
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data alat.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(d => `
         <tr>
           <td><b>${d.idCode}</b></td>
           <td>${d.userId || '-'}</td>
@@ -66,20 +105,26 @@
     }
 
     async function saveDevice() {
-      const key = document.getElementById('adminKey').value;
       const idCode = document.getElementById('idCode').value;
       const clientName = document.getElementById('clientName').value;
       const targetUrl = document.getElementById('targetUrl').value;
 
+      if (!idCode || !targetUrl) return alert('Kode Alat dan Link wajib diisi!');
+
       const res = await fetch('/api/admin/update', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': savedAdminKey },
         body: JSON.stringify({ idCode, clientName, targetUrl })
       });
 
       const json = await res.json();
       alert(json.message);
-      if (json.success) loadDevices();
+      if (json.success) {
+        document.getElementById('idCode').value = '';
+        document.getElementById('clientName').value = '';
+        document.getElementById('targetUrl').value = '';
+        loadDevices();
+      }
     }
   </script>
 </body>
