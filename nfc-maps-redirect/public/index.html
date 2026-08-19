@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan NFC Google Review</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">Pengaturan NFC Kafe</h1>
+    <p class="text-sm text-gray-500 mb-6">Ubah arah tujuan link Google Maps untuk alat NFC kamu.</p>
+
+    <form id="updateForm" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Kode Alat (ID)</label>
+        <input type="text" id="idCode" placeholder="Contoh: A001" required
+          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Link Google Maps Terbaru</label>
+        <input type="url" id="targetUrl" placeholder="https://maps.app.goo.gl/..." required
+          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <button type="submit"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-200">
+        Simpan Perubahan
+      </button>
+    </form>
+
+    <div id="alertBox" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
+  </div>
+
+  <script>
+    document.getElementById('updateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const idCode = document.getElementById('idCode').value;
+      const targetUrl = document.getElementById('targetUrl').value;
+      const alertBox = document.getElementById('alertBox');
+
+      alertBox.classList.add('hidden');
+
+      try {
+        const response = await fetch('/api/device/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idCode, targetUrl })
+        });
+
+        const result = await response.json();
+
+        alertBox.classList.remove('hidden');
+        if (result.success) {
+          alertBox.className = 'mt-4 p-3 rounded-lg text-sm bg-green-100 text-green-700';
+          alertBox.innerText = result.message;
+        } else {
+          alertBox.className = 'mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700';
+          alertBox.innerText = result.message || 'Gagal memperbarui data.';
+        }
+      } catch (err) {
+        console.error(err);
+        alertBox.classList.remove('hidden');
+        alertBox.className = 'mt-4 p-3 rounded-lg text-sm bg-red-100 text-red-700';
+        alertBox.innerText = 'Gagal terhubung ke server. Pastikan terminal server masih berjalan.';
+      }
+    });
+  </script>
+</body>
+</html>

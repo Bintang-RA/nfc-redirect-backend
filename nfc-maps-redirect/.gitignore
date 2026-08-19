@@ -1,0 +1,17 @@
+# Dependency & Build
+node_modules
+/generated/prisma
+
+# Environment Variables (Sangat Penting)
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
