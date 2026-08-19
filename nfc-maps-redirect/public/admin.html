@@ -2,54 +2,312 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Master Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; background: #f4f6f8; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    input, button { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; }
-    button { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .hidden { display: none !important; }
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      padding: 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-top: 12px;
+    }
+    .brand-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+    .brand-header p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* CARD STYLING */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* FORMS & INPUTS */
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="url"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 15px; /* Mencegah auto-zoom di iOS Safari */
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background-color: #fff;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    /* BUTTONS */
+    .btn {
+      width: 100%;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background-color: var(--primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+    .btn-danger {
+      background-color: #fee2e2;
+      color: var(--danger);
+      width: auto;
+      padding: 8px 14px;
+      font-size: 12px;
+    }
+    .btn-danger:hover {
+      background-color: #fca5a5;
+    }
+
+    /* RESPONSIVE TABLE */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* BADGES & LINKS */
+    .badge-scan {
+      background: var(--success-bg);
+      color: var(--success-text);
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .link-url {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      max-width: 200px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+    .link-url:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* MEDIA QUERIES UNTUK HP KECIL (iPhone 8 / SE) */
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+      .card {
+        padding: 16px;
+        border-radius: 12px;
+      }
+      .brand-header h1 {
+        font-size: 20px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- FORM LOGIN -->
-  <div class="card" id="loginCard">
-    <h2>🔑 Login Admin</h2>
-    <input type="password" id="adminKey" placeholder="Masukkan Password Admin">
-    <button onclick="loginAdmin()">Login</button>
-  </div>
-
-  <!-- DASHBOARD ADMIN (HIDDEN SEBELUM LOGIN) -->
-  <div id="dashboardSection" class="hidden">
+  <div class="container">
     
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-        <h2 style="margin:0;">➕ Tambah / Edit Link Alat</h2>
-        <button onclick="logoutAdmin()" style="width: auto; background: #dc3545; padding: 6px 12px;">Logout</button>
-      </div>
-      <input type="text" id="idCode" placeholder="Kode Alat (contoh: A001)">
-      <input type="text" id="clientName" placeholder="Nama Klien / Kafe (contoh: Kopi Kenangan)">
-      <input type="url" id="targetUrl" placeholder="Link Google Maps Baru">
-      <button onclick="saveDevice()">Simpan Link</button>
+    <!-- BRAND HEADER -->
+    <div class="brand-header">
+      <h1>NFC Redirect Master</h1>
+      <p>Kelola Tautan Google Maps Klien</p>
     </div>
 
-    <div class="card">
-      <h2>📊 Daftar Seluruh Alat</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID Alat</th>
-            <th>Klien</th>
-            <th>Total Scan</th>
-            <th>Link Google Maps</th>
-          </tr>
-        </thead>
-        <tbody id="deviceTable"></tbody>
-      </table>
+    <!-- FORM LOGIN -->
+    <div class="card" id="loginCard">
+      <div class="card-title" style="margin-bottom: 16px;">🔑 Authentikasi Admin</div>
+      <div class="form-group">
+        <label for="adminKey">Password Keamanan</label>
+        <input type="password" id="adminKey" placeholder="Masukkan password admin...">
+      </div>
+      <button class="btn btn-primary" onclick="loginAdmin()">Masuk Dashboard</button>
+    </div>
+
+    <!-- DASHBOARD SECTION (TERSEMBUNYI SEBELUM LOGIN) -->
+    <div id="dashboardSection" class="hidden">
+      
+      <!-- FORM INPUT / EDIT -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚡ Tambah / Update Alat</div>
+          <button class="btn btn-danger" onclick="logoutAdmin()">Keluar</button>
+        </div>
+
+        <div class="form-group">
+          <label>Kode Alat (ID)</label>
+          <input type="text" id="idCode" placeholder="Contoh: A001">
+        </div>
+
+        <div class="form-group">
+          <label>Nama Klien / Kafe</label>
+          <input type="text" id="clientName" placeholder="Contoh: Kopi Kenangan">
+        </div>
+
+        <div class="form-group">
+          <label>URL Google Maps</label>
+          <input type="url" id="targetUrl" placeholder="https://maps.app.goo.gl/...">
+        </div>
+
+        <button class="btn btn-primary" onclick="saveDevice()">Simpan Perubahan</button>
+      </div>
+
+      <!-- TABEL DAFTAR ALAT -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom: 16px;">📊 Daftar Alat Terdaftar</div>
+        
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID Alat</th>
+                <th>Klien</th>
+                <th>Total Scan</th>
+                <th>Aksi / Link</th>
+              </tr>
+            </thead>
+            <tbody id="deviceTable">
+              <!-- Content via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -68,7 +326,6 @@
         return alert(json.message || 'Password Salah!');
       }
 
-      // Password Benar -> Simpan key & Buka Dashboard
       savedAdminKey = key;
       document.getElementById('loginCard').classList.add('hidden');
       document.getElementById('dashboardSection').classList.remove('hidden');
@@ -91,15 +348,16 @@
     function renderTable(data) {
       const tbody = document.getElementById('deviceTable');
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data alat.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#64748b;">Belum ada data alat terdaftar.</td></tr>';
         return;
       }
+
       tbody.innerHTML = data.map(d => `
         <tr>
-          <td><b>${d.idCode}</b></td>
+          <td><strong style="color:var(--primary);">${d.idCode}</strong></td>
           <td>${d.userId || '-'}</td>
-          <td><b>${d.scanCount}</b>x</td>
-          <td><a href="${d.targetUrl}" target="_blank">Cek Link</a></td>
+          <td><span class="badge-scan">${d.scanCount || 0}x scan</span></td>
+          <td><a href="${d.targetUrl}" target="_blank" class="link-url">Buka Maps ↗</a></td>
         </tr>
       `).join('');
     }
@@ -109,7 +367,7 @@
       const clientName = document.getElementById('clientName').value;
       const targetUrl = document.getElementById('targetUrl').value;
 
-      if (!idCode || !targetUrl) return alert('Kode Alat dan Link wajib diisi!');
+      if (!idCode || !targetUrl) return alert('Kode Alat dan Link Google Maps wajib diisi!');
 
       const res = await fetch('/api/admin/update', {
         method: 'POST',
@@ -119,6 +377,7 @@
 
       const json = await res.json();
       alert(json.message);
+      
       if (json.success) {
         document.getElementById('idCode').value = '';
         document.getElementById('clientName').value = '';
