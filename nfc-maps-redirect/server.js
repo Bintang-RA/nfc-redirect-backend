@@ -1,6 +1,5 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
-const path = require('path');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -96,6 +95,24 @@ app.post('/api/admin/update', async (req, res) => {
   } catch (error) {
     console.error('Error Admin Update:', error);
     return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Hapus Alat dari Database
+app.delete('/api/admin/delete/:idCode', async (req, res) => {
+  const apiKey = req.headers['x-admin-key'];
+  if (apiKey !== process.env.ADMIN_KEY) {
+    return res.status(401).json({ success: false, message: 'Password Admin Salah!' });
+  }
+
+  const { idCode } = req.params;
+
+  try {
+    await prisma.device.delete({ where: { idCode } });
+    return res.json({ success: true, message: `Alat ${idCode} berhasil dihapus!` });
+  } catch (error) {
+    console.error('Error Delete Device:', error);
+    return res.status(500).json({ success: false, message: 'Gagal menghapus data / alat tidak ditemukan.' });
   }
 });
 

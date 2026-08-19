@@ -302,6 +302,23 @@
       text-decoration: underline;
     }
 
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      margin-left: 14px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .btn-delete:hover {
+      background: #fef2f2;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -388,7 +405,12 @@
       </div>
 
       <div>
-        <h3 class="section-title">📊 Daftar Seluruh Alat</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+          <h3 class="section-title" style="margin-bottom: 0;">📊 Daftar Seluruh Alat</h3>
+          <button onclick="loadDevices()" class="btn-logout" style="background: #ffffff; color: var(--accent-dark); border-color: var(--border-color);">
+            🔄 Refresh Data
+          </button>
+        </div>
         
         <div class="table-responsive">
           <table>
@@ -414,6 +436,15 @@
   <script>
     let savedAdminKey = '';
 
+    // Otomatis login jika sesi tersimpan di browser
+    window.addEventListener('DOMContentLoaded', () => {
+      const storedKey = localStorage.getItem('adminKey');
+      if (storedKey) {
+        document.getElementById('adminKey').value = storedKey;
+        loginAdmin();
+      }
+    });
+
     async function loginAdmin() {
       const key = document.getElementById('adminKey').value;
       if (!key) return alert('Masukkan password admin!');
@@ -422,10 +453,13 @@
       const json = await res.json();
 
       if (!json.success) {
+        localStorage.removeItem('adminKey');
         return alert(json.message || 'Password Salah!');
       }
 
       savedAdminKey = key;
+      localStorage.setItem('adminKey', key);
+      
       document.getElementById('loginCard').classList.add('hidden');
       document.getElementById('dashboardSection').classList.remove('hidden');
       renderTable(json.data);
@@ -433,12 +467,15 @@
 
     function logoutAdmin() {
       savedAdminKey = '';
+      localStorage.removeItem('adminKey');
       document.getElementById('adminKey').value = '';
       document.getElementById('loginCard').classList.remove('hidden');
       document.getElementById('dashboardSection').classList.add('hidden');
     }
 
     async function loadDevices() {
+      if (!savedAdminKey) return;
+      
       const res = await fetch('/api/admin/devices', { headers: { 'x-admin-key': savedAdminKey } });
       const json = await res.json();
       if (json.success) renderTable(json.data);
@@ -456,7 +493,10 @@
           <td>${d.idCode}</td>
           <td>${d.clientName || d.userId || '-'}</td>
           <td><span class="scan-badge">${d.scanCount || 0}x scan</span></td>
-          <td><a href="${d.targetUrl}" target="_blank" class="link-action">Buka Maps ↗</a></td>
+          <td>
+            <a href="${d.targetUrl}" target="_blank" class="link-action">Buka Maps ↗</a>
+            <button class="btn-delete" onclick="deleteDevice('${d.idCode}')">Hapus</button>
+          </td>
         </tr>
       `).join('');
     }
@@ -481,6 +521,22 @@
         document.getElementById('idCode').value = '';
         document.getElementById('clientName').value = '';
         document.getElementById('targetUrl').value = '';
+        loadDevices();
+      }
+    }
+
+    async function deleteDevice(idCode) {
+      if (!confirm(`Yakin ingin menghapus alat ${idCode}?`)) return;
+
+      const res = await fetch(`/api/admin/delete/${idCode}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': savedAdminKey }
+      });
+
+      const json = await res.json();
+      alert(json.message);
+
+      if (json.success) {
         loadDevices();
       }
     }
